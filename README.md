@@ -3,6 +3,9 @@
 # Description
 Node.js event based module for searching streams using the Boyer–Moore–Horspool algorithm.
 
+# Requirements
+Node.js 6.14.3 or higher is required.
+
 # Installation
 ```
 npm i @slaviczavik/stream-search
