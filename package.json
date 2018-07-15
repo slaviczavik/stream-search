@@ -1,6 +1,6 @@
 {
   "name": "@slaviczavik/stream-search",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Event based module for searching streams.",
   "main": "./lib/index.js",
   "scripts": {
