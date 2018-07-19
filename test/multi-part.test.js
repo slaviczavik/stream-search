@@ -79,22 +79,23 @@ describe('AQD in (AQD--)', function () {
   })
 })
 
-describe('AQD in (AQD-AQD)', function () {
-  it('Should be found in (AQD) at [0 - 2]', function (done) {
+describe('AQD in (-, -AQD)', function () {
+  it('Should not be found in (-)', function (done) {
     let search = new StreamSearch('AQD')
     let part = 0
 
     search.on('part', function (o) {
       if (part++ === 0) {
-        assert.equal(o['isMatch'], true)
-        assert.equal(o['start'], 0)
-        assert.equal(o['end'], 2)
-        assert.equal(o['data'].toString('ascii'), 'AQD')
+        assert.equal(o['isMatch'], false)
+        assert.equal(o['start'], undefined)
+        assert.equal(o['end'], undefined)
+        assert.equal(o['data'].toString('ascii'), '-')
         done()
       }
     })
 
-    search.add('AQD-AQD')
+    search.add('-')
+    search.add('-AQD')
     search.end()
   })
 
@@ -108,26 +109,6 @@ describe('AQD in (AQD-AQD)', function () {
         assert.equal(o['start'], 1)
         assert.equal(o['end'], 3)
         assert.equal(o['data'].toString('ascii'), '-AQD')
-        done()
-      }
-    })
-
-    search.add('AQD-AQD')
-    search.end()
-  })
-})
-
-describe('AQD in (-, -AQD)', function () {
-  it('Should be found in (--AQD) at [2 - 4]', function (done) {
-    let search = new StreamSearch('AQD')
-    let part = 0
-
-    search.on('part', function (o) {
-      if (part++ === 0) {
-        assert.equal(o['isMatch'], true)
-        assert.equal(o['start'], 2)
-        assert.equal(o['end'], 4)
-        assert.equal(o['data'].toString('ascii'), '--AQD')
         done()
       }
     })
@@ -286,6 +267,206 @@ describe('AQD in (ADAQDAQ)', function () {
     })
 
     search.add('ADAQDAQ')
+    search.end()
+  })
+})
+
+describe('AQD in (-A, QD)', function () {
+  it('Should not be found in (-)', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 0) {
+        assert.equal(o['isMatch'], false)
+        assert.equal(o['start'], undefined)
+        assert.equal(o['end'], undefined)
+        assert.equal(o['data'].toString('ascii'), '-')
+        done()
+      }
+    })
+
+    search.add('-A')
+    search.add('QD')
+    search.end()
+  })
+
+  it('Should be found in (AQD) at [0 - 2]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 1) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 0)
+        assert.equal(o['end'], 2)
+        assert.equal(o['data'].toString('ascii'), 'AQD')
+        done()
+      }
+    })
+
+    search.add('-A')
+    search.add('QD')
+    search.end()
+  })
+})
+
+describe('AQD in (-A, Q, D)', function () {
+  it('Should not be found in (-)', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 0) {
+        assert.equal(o['isMatch'], false)
+        assert.equal(o['start'], undefined)
+        assert.equal(o['end'], undefined)
+        assert.equal(o['data'].toString('ascii'), '-')
+        done()
+      }
+    })
+
+    search.add('-A')
+    search.add('Q')
+    search.add('D')
+    search.end()
+  })
+
+  it('Should be found in (AQD) at [0 - 2]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 1) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 0)
+        assert.equal(o['end'], 2)
+        assert.equal(o['data'].toString('ascii'), 'AQD')
+        done()
+      }
+    })
+
+    search.add('-A')
+    search.add('Q')
+    search.add('D')
+    search.end()
+  })
+})
+
+describe('AQD in (A, QD--AQD)', function () {
+  it('Should be found in (AQD) at [0 - 2]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 0) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 0)
+        assert.equal(o['end'], 2)
+        assert.equal(o['data'].toString('ascii'), 'AQD')
+        done()
+      }
+    })
+
+    search.add('A')
+    search.add('QD--AQD')
+    search.end()
+  })
+
+  it('Should be found in (--AQD) at [2 - 4]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 1) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 2)
+        assert.equal(o['end'], 4)
+        assert.equal(o['data'].toString('ascii'), '--AQD')
+        done()
+      }
+    })
+
+    search.add('A')
+    search.add('QD--AQD')
+    search.end()
+  })
+})
+
+describe('AQD in (AQD-AQD)', function () {
+  it('Should be found in (AQD) at [0 - 2]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 0) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 0)
+        assert.equal(o['end'], 2)
+        assert.equal(o['data'].toString('ascii'), 'AQD')
+        done()
+      }
+    })
+
+    search.add('AQD-AQD')
+    search.end()
+  })
+
+  it('Should be found in (-AQD) at [1 - 3]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 1) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 1)
+        assert.equal(o['end'], 3)
+        assert.equal(o['data'].toString('ascii'), '-AQD')
+        done()
+      }
+    })
+
+    search.add('AQD-AQD')
+    search.end()
+  })
+})
+
+describe('AQD in (AQ, DQD)', function () {
+  it('Should be found in (AQD) at [0 - 2]', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 0) {
+        assert.equal(o['isMatch'], true)
+        assert.equal(o['start'], 0)
+        assert.equal(o['end'], 2)
+        assert.equal(o['data'].toString('ascii'), 'AQD')
+        done()
+      }
+    })
+
+    search.add('AQ')
+    search.add('DQD')
+    search.end()
+  })
+
+  it('Should return remaining data (QD)', function (done) {
+    let search = new StreamSearch('AQD')
+    let part = 0
+
+    search.on('part', function (o) {
+      if (part++ === 1) {
+        assert.equal(o['isMatch'], false)
+        assert.equal(o['start'], undefined)
+        assert.equal(o['end'], undefined)
+        assert.equal(o['data'].toString('ascii'), 'QD')
+        done()
+      }
+    })
+
+    search.add('AQ')
+    search.add('DQD')
     search.end()
   })
 })
