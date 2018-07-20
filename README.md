@@ -58,6 +58,7 @@ search.end()
 | - | - | - | - | - |
 | `needle` | true | `string`, `buffer` | The needle what we are searching for. | `none` |
 | `limit` | false | `integer` | The maximum number of matches. | `Infinity` |
+**Number of matches is reseted after the `end` method calling.**
 
 ## Methods
 
