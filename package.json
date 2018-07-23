@@ -1,6 +1,6 @@
 {
   "name": "@slaviczavik/stream-search",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Event based module for searching streams.",
   "main": "./lib/index.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "url": "https://github.com/slaviczavik/stream-search.git"
   },
   "keywords": [
-    "search"
+    "search",
+    "stream"
   ],
   "author": "Jaroslav Zavodny <slaviczavik@gmail.com> (http://github.com/slaviczavik)",
   "license": "MIT",
