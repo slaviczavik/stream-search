@@ -1,15 +1,15 @@
 const assert = require('assert')
-const StreamSearch = require('../lib')
+const StreamSearch = require('../src/index.js')
 
 describe('AQD in (AQD)', function () {
   it('Should be found in (AQD) at [0 - 2]', function (done) {
-    let search = new StreamSearch('AQD')
+    const search = StreamSearch('AQD')
 
     search.on('part', function (o) {
-      assert.equal(o['isMatch'], true)
-      assert.equal(o['start'], 0)
-      assert.equal(o['end'], 2)
-      assert.equal(o['data'].toString('ascii'), 'AQD')
+      assert.strictEqual(o.isMatch, true)
+      assert.strictEqual(o.start, 0)
+      assert.strictEqual(o.end, 2)
+      assert.strictEqual(o.data.toString('ascii'), 'AQD')
       done()
     })
 
@@ -20,13 +20,13 @@ describe('AQD in (AQD)', function () {
 
 describe('AQD in (AQX)', function () {
   it('Should not be found in (AQX)', function (done) {
-    let search = new StreamSearch('AQD')
+    const search = StreamSearch('AQD')
 
     search.on('part', function (o) {
-      assert.equal(o['isMatch'], false)
-      assert.equal(o['start'], undefined)
-      assert.equal(o['end'], undefined)
-      assert.equal(o['data'].toString('ascii'), 'AQX')
+      assert.strictEqual(o.isMatch, false)
+      assert.strictEqual(o.start, undefined)
+      assert.strictEqual(o.end, undefined)
+      assert.strictEqual(o.data.toString('ascii'), 'AQX')
       done()
     })
 
@@ -37,13 +37,13 @@ describe('AQD in (AQX)', function () {
 
 describe('AQD in (XQD)', function () {
   it('Should not be found in (XQD)', function (done) {
-    let search = new StreamSearch('AQD')
+    const search = StreamSearch('AQD')
 
     search.on('part', function (o) {
-      assert.equal(o['isMatch'], false)
-      assert.equal(o['start'], undefined)
-      assert.equal(o['end'], undefined)
-      assert.equal(o['data'].toString('ascii'), 'XQD')
+      assert.strictEqual(o.isMatch, false)
+      assert.strictEqual(o.start, undefined)
+      assert.strictEqual(o.end, undefined)
+      assert.strictEqual(o.data.toString('ascii'), 'XQD')
       done()
     })
 
@@ -54,13 +54,13 @@ describe('AQD in (XQD)', function () {
 
 describe('AQD in (AQ)', function () {
   it('Should not be found in (AQ)', function (done) {
-    let search = new StreamSearch('AQD')
+    const search = StreamSearch('AQD')
 
     search.on('part', function (o) {
-      assert.equal(o['isMatch'], false)
-      assert.equal(o['start'], undefined)
-      assert.equal(o['end'], undefined)
-      assert.equal(o['data'].toString('ascii'), 'AQ')
+      assert.strictEqual(o.isMatch, false)
+      assert.strictEqual(o.start, undefined)
+      assert.strictEqual(o.end, undefined)
+      assert.strictEqual(o.data.toString('ascii'), 'AQ')
       done()
     })
 
