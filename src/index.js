@@ -27,22 +27,17 @@ function StreamSearch (pattern, limit) {
   function add (data) {
     // Reset search status.
     done = false
+    // Create a Buffer from a string.
+    haystack = setHaystack(data)
 
-    // It also handle the haystack, and tail from previous request.
-    haystack = toBuffer(data)
-    haystack = processHaystack()
+    if (haystack && haystack.length < needle.length) {
+      processHaystack()
+    }
 
     // If we reached the limit in previous searching.
     if (matches === maxMatches) {
-      if (prefix) {
-        emitter.emit('part', { isMatch: false, data: prefix })
-        prefix = null
-      }
-
-      if (haystack) {
-        emitter.emit('part', { isMatch: false, data: haystack })
-        haystack = null
-      }
+      flushPrefix()
+      flushHaystack()
 
       return false
     }
@@ -59,42 +54,34 @@ function StreamSearch (pattern, limit) {
   }
 
   function processHaystack () {
-    if (haystack.length === 0) {
-      return false
-    }
-
-    if (haystack.length >= needle.length) {
-      return haystack
-    }
-
     if (prefix) {
       const dataLength = prefix.length + haystack.length
 
       haystack = Buffer.concat([prefix, haystack], dataLength)
 
-      // If the haystack is long enough now.
-      if (dataLength >= needle.length) {
-        prefix = null
-        return haystack
+      // Haystack is not long enough!
+      if (dataLength < needle.length) {
+        prefix = haystack
+        haystack = null
+        return false
       }
 
-      prefix = haystack
+      prefix = null
       return false
     }
 
     // If there is no tail data from previous request.
-
     // Number of characters of the haystack that match the needle.
     const matched = noPrefixChars(haystack, needle)
 
-    // Haystack does not contains a needle data.
     if (matched === 0) {
-      emitter.emit('part', { isMatch: false, data: haystack })
+      // Haystack does not contains a needle data.
+      flushHaystack()
       return false
     }
 
-    // Whole haystack contains a needle data.
     if (matched === haystack.length) {
+      // Whole haystack contains a needle data.
       prefix = haystack
       haystack = null
       return false
@@ -103,40 +90,22 @@ function StreamSearch (pattern, limit) {
     // Only characters at the end of the haystack match the needle.
     const end = haystack.length - matched
     emitter.emit('part', { isMatch: false, data: haystack.slice(0, end) })
-
     prefix = haystack.slice(end)
     haystack = null
-    return false
   }
 
   function processTail () {
-    // Test if the beginning of the haystack is a suffix
-    // to the prefix from a previous request.
+    // Test if the beginning of the haystack is a suffix to the prefix
+    // from a previous request.
     const isMatch = isSuffix(needle, haystack, prefix)
 
-    if (isMatch) {
-      const end = needle.length - prefix.length
-      const rest = haystack.slice(0, end)
-
-      const data = Buffer.concat(
-        [prefix, rest],
-        prefix.length + rest.length
-      )
-
-      haystack = haystack.slice(end)
-
-      emitter.emit('part', {
-        isMatch: true,
-        data: data,
-        start: 0,
-        end: data.length - 1
-      })
-    }
-    else {
-      emitter.emit('part', { isMatch: false, data: prefix })
+    // There is no match, we don't need a prefix anymore.
+    if (!isMatch) {
+      flushPrefix()
+      return false
     }
 
-    prefix = null
+    flushTail()
   }
 
   function processSearch () {
@@ -161,7 +130,7 @@ function StreamSearch (pattern, limit) {
 
     // If we reached the match limit.
     if (matches === maxMatches) {
-      emitter.emit('part', { isMatch: false, data: haystack })
+      flushHaystack()
       return false
     }
 
@@ -177,9 +146,9 @@ function StreamSearch (pattern, limit) {
       haystack = haystack.slice(end)
     }
 
-    // If there are still some characters left, but too few to process them.
+    // If there are still some characters left, but too few to process them,
+    // we will preserve them for another request.
     if (haystack.length) {
-      // We will preserve them for another request.
       prefix = haystack
     }
   }
@@ -198,15 +167,54 @@ function StreamSearch (pattern, limit) {
     haystack = haystack.slice(end)
   }
 
-  function end () {
+  function setHaystack (data) {
+    if (data.length === 0) {
+      return null
+    }
+
+    return toBuffer(data)
+  }
+
+  function flushTail () {
+    const end = needle.length - prefix.length
+    const rest = haystack.slice(0, end)
+
+    const data = Buffer.concat(
+      [prefix, rest],
+      prefix.length + rest.length
+    )
+
+    prefix = null
+    haystack = haystack.slice(end)
+
+    emitter.emit('part', {
+      isMatch: true,
+      data: data,
+      start: 0,
+      end: data.length - 1
+    })
+  }
+
+  function flushPrefix () {
     if (prefix) {
       emitter.emit('part', { isMatch: false, data: prefix })
+      prefix = null
     }
+  }
+
+  function flushHaystack () {
+    if (haystack) {
+      emitter.emit('part', { isMatch: false, data: haystack })
+      haystack = null
+    }
+  }
+
+  function end () {
+    flushPrefix()
+    flushHaystack()
 
     // After searching we reset the state, so we can use
     // this "instance" for a new searching with new data.
-    haystack = null
-    prefix = null
     matches = 0
   }
 

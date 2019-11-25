@@ -17,7 +17,7 @@ npm i @slaviczavik/stream-search
 
 ```JS
 const StreamSearch = require('@slaviczavik/stream-search')
-const search = new StreamSearch('AQD')
+const search = StreamSearch('AQD')
 
 search.on('part', function (obj) {
   const isMatch = obj['isMatch']
@@ -52,7 +52,7 @@ search.end()
 # API
 
 ## Constructor
-### `new StreamSearch(needle, limit)`
+### `StreamSearch(needle, limit)`
 
 | Name | Required | Type | Description | Default
 | - | - | - | - | - |
