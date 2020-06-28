@@ -1,5 +1,5 @@
 // Number of match characters in the tail from the end.
-function noPrefixChars (haystack, needle) {
+function prefixLength (haystack, needle) {
   // Number of characters in the haystack trailing data,
   // that match the needle. Counting from the end.
   let j = 0
@@ -21,4 +21,4 @@ function noPrefixChars (haystack, needle) {
   return j
 }
 
-module.exports = { noPrefixChars }
+module.exports = { prefixLength }

@@ -1,70 +1,70 @@
 const assert = require('assert')
 const StreamSearch = require('../src/index.js')
 
-describe('AQD in (AQD)', function () {
-  it('Should be found in (AQD) at [0 - 2]', function (done) {
-    const search = StreamSearch('AQD')
+describe('ANT in ANT', function () {
+  it('Should be found in ANT at [0 - 2]', function (done) {
+    const search = StreamSearch('ANT')
 
     search.on('part', function (o) {
       assert.strictEqual(o.isMatch, true)
       assert.strictEqual(o.start, 0)
       assert.strictEqual(o.end, 2)
-      assert.strictEqual(o.data.toString('ascii'), 'AQD')
+      assert.strictEqual(o.data.toString('ascii'), 'ANT')
       done()
     })
 
-    search.add('AQD')
+    search.add('ANT')
     search.end()
   })
 })
 
-describe('AQD in (AQX)', function () {
-  it('Should not be found in (AQX)', function (done) {
-    const search = StreamSearch('AQD')
+describe('ANT in ANZ', function () {
+  it('Should not be found in ANZ', function (done) {
+    const search = StreamSearch('ANT')
 
     search.on('part', function (o) {
       assert.strictEqual(o.isMatch, false)
       assert.strictEqual(o.start, undefined)
       assert.strictEqual(o.end, undefined)
-      assert.strictEqual(o.data.toString('ascii'), 'AQX')
+      assert.strictEqual(o.data.toString('ascii'), 'ANZ')
       done()
     })
 
-    search.add('AQX')
+    search.add('ANZ')
     search.end()
   })
 })
 
-describe('AQD in (XQD)', function () {
-  it('Should not be found in (XQD)', function (done) {
-    const search = StreamSearch('AQD')
+describe('ANT in FOO', function () {
+  it('Should not be found in FOO', function (done) {
+    const search = StreamSearch('ANT')
 
     search.on('part', function (o) {
       assert.strictEqual(o.isMatch, false)
       assert.strictEqual(o.start, undefined)
       assert.strictEqual(o.end, undefined)
-      assert.strictEqual(o.data.toString('ascii'), 'XQD')
+      assert.strictEqual(o.data.toString('ascii'), 'FOO')
       done()
     })
 
-    search.add('XQD')
+    search.add('FOO')
     search.end()
   })
 })
 
-describe('AQD in (AQ)', function () {
-  it('Should not be found in (AQ)', function (done) {
-    const search = StreamSearch('AQD')
+describe('ANT in AN', function () {
+  it('Should not be found in AN', function (done) {
+    const search = StreamSearch('ANT')
 
     search.on('part', function (o) {
       assert.strictEqual(o.isMatch, false)
       assert.strictEqual(o.start, undefined)
       assert.strictEqual(o.end, undefined)
-      assert.strictEqual(o.data.toString('ascii'), 'AQ')
+      assert.strictEqual(o.data.toString('ascii'), 'AN')
       done()
     })
 
-    search.add('AQ')
+    search.add('AN')
     search.end()
   })
 })
