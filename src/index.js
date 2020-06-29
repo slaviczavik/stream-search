@@ -3,9 +3,7 @@ const EventEmitter = require('events')
 const { toBuffer } = require('./toBuffer')
 const { matcher } = require('./matcher')
 const { preprocess } = require('./preprocess')
-const { prefixLength } = require('./prefixLength')
-
-// TODO: Is HTTP stream in ASCII? Check specifications.
+const { getPrefixLength } = require('./getPrefixLength')
 
 function StreamSearch (pattern, limit) {
   const emitter = new EventEmitter()
@@ -20,92 +18,64 @@ function StreamSearch (pattern, limit) {
   let haystack
   // The current match count.
   let matches = 0
-  // Search status.
-  let done = true
 
   function add (data) {
-    // if (done === false) {
-    //   console.log(`Searching in progress, but data ${data} was added!`)
-    //
-    //   // Add data to the queue!
-    //
-    //   return false
-    // }
-
-    // If we reached the limit in previous searching.
-    if (matches === maxMatches) {
-      flushHaystack()
-      flushInput(data)
-
-      return false
-    }
-
-    // Reset search status.
-    done = false
     // Create a haystack.
     haystack = createHaystack(data)
 
-    // if (haystack.length < needle.length) {
-    //   // If there is no tail data from previous request.
-    //   // Number of characters of the haystack that match the needle.
-    //   const matched = prefixLength(haystack, needle)
-    //
-    //   if (matched === 0) {
-    //     // Haystack does not contains a needle data.
-    //     flushHaystack()
-    //   }
-    //   else {
-    //     // Only characters at the end of the haystack match the needle.
-    //     const end = haystack.length - matched
-    //
-    //     if (end > 0) {
-    //       emitter.emit('part', { isMatch: false, data: haystack.slice(0, end) })
-    //     }
-    //
-    //     haystack = haystack.slice(end)
-    //   }
-    // }
-
-    if (haystack.length >= needle.length) {
-      // Proceed to searching.
-      processSearch()
-    }
+    // Proceed to searching.
+    processSearch()
   }
 
   function processSearch () {
-    if (done) {
-      return true
-    }
+    while (matches < maxMatches && haystack.length >= needle.length) {
+      const { match, skip } = matcher(haystack, needle, table)
 
-    const { match, skip } = matcher(haystack, needle, table)
-
-    if (match) {
-      processMatch(skip)
-
-      if (++matches === maxMatches) {
-        done = true
-        flushHaystack()
-        return false
+      if (match) {
+        processMatch(skip)
+        matches++
       }
       else {
-        processSearch()
+        // Suffix may contain prefix of the needle.
+        const suffix = haystack.slice(skip)
+        const prefixLength = getPrefixLength(suffix, needle)
+
+        // Start of a prefix.
+        const start = suffix.length - prefixLength
+        sliceHaystack(0, skip + start)
+      }
+    }
+
+    matches === maxMatches
+      ? flushHaystack()
+      : handlePrefix()
+  }
+
+  /**
+   * When haystack is shorter than needle, we can check
+   * if it contains a prefix of the needle.
+   */
+  function handlePrefix () {
+    // Number of characters of the haystack that match the needle.
+    const matched = getPrefixLength(haystack, needle)
+
+    if (matched > 0) {
+      // Suffix of the haystack match the prefix of the needle.
+      const prefixStart = haystack.length - matched
+
+      if (prefixStart > 0) {
+        sliceHaystack(0, prefixStart)
       }
     }
     else {
-      // Leftover, may contain prefix of the needle.
-      const suffix = haystack.slice(skip)
-      const prefLen = prefixLength(suffix, needle)
-
-      // Start of a tail.
-      const start = suffix.length - prefLen
-
-      flush(haystack.slice(0, skip + start))
-
-      haystack = haystack.slice(skip + start)
-
-      // No match in current haystack.
-      done = true
+      // Haystack does not contains a needle data.
+      flushHaystack()
     }
+  }
+
+  function sliceHaystack (start, end) {
+    flush(haystack.slice(start, end))
+    haystack = haystack.slice(end)
   }
 
   /**
@@ -151,13 +121,9 @@ function StreamSearch (pattern, limit) {
    * @param {Buffer} data - Data to flush.
    */
   function flush (data) {
-    if (data) {
+    if (data.length) {
       emitter.emit('part', { isMatch: false, data: data })
     }
-  }
-
-  function flushInput (str) {
-    emitter.emit('part', { isMatch: false, data: toBuffer(str) })
   }
 
   function flushHaystack () {

@@ -7,12 +7,13 @@
  * @returns {Object}
  */
 const matcher = function (haystack, needle, table) {
+  const needleLength = needle.length
   // Number of safely skipped characters in the haystack.
   let skip = 0
 
   // Loop until there is enough characters to read.
-  while (haystack.length - skip >= needle.length) {
-    let i = needle.length - 1
+  while (haystack.length - skip >= needleLength) {
+    let i = needleLength - 1
 
     // Start comparing needle from right side.
     while (haystack[skip + i] === needle[i]) {
@@ -25,7 +26,8 @@ const matcher = function (haystack, needle, table) {
     }
 
     // No match, skip about n characters.
-    skip += table[haystack[skip + needle.length - 1]]
+    const key = haystack[skip + needleLength - 1]
+    skip += table[key] ? table[key] : needleLength
   }
 
   // No match at all.
